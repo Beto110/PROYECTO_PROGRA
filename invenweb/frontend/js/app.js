@@ -74,6 +74,8 @@ async function loadInventory() {
         products = data.data || [];
         renderTable();
         updateStats();
+        // Update POS grid if we are on that view or just keep it synced
+        renderPOSProducts();
     } catch(e) { console.error(e); }
 }
 
@@ -82,8 +84,9 @@ async function loadCategories() {
         const res = await fetch(API_URL + 'get_categorias');
         const data = await res.json();
         categories = data.data || [];
-        const select = document.getElementById('prod-categoria');
-        select.innerHTML = categories.map(c => `<option value="${c.id_categoria}">${c.nombre}</option>`).join('');
+        const html = categories.map(c => `<option value="${c.id_categoria}">${c.nombre}</option>`).join('');
+        document.getElementById('prod-categoria').innerHTML = html;
+        document.getElementById('edit-prod-categoria').innerHTML = html;
     } catch(e) { console.error(e); }
 }
 
@@ -104,7 +107,7 @@ function renderTable() {
                 <span class="badge ${p.stock < 10 ? 'low' : ''}">${p.stock}</span>
             </td>
             <td>
-                <button class="btn-icon" style="color:var(--text-main)"><i class="ri-edit-line"></i></button>
+                <button class="btn-icon" style="color:var(--text-main)" onclick="openEditModal(${p.id_producto})"><i class="ri-edit-line"></i></button>
             </td>
         </tr>
     `).join('');
@@ -132,6 +135,49 @@ document.getElementById('form-product').addEventListener('submit', async (e) => 
     const data = await res.json();
     if(data.success) {
         modalProduct.classList.remove('active');
+        e.target.reset();
+        loadInventory();
+    } else {
+        alert("Error: " + data.message);
+    }
+});
+
+// Edit Product
+const modalEditProduct = document.getElementById('modal-edit-product');
+document.querySelector('.edit-close-btn').addEventListener('click', () => modalEditProduct.classList.remove('active'));
+
+function openEditModal(id) {
+    const product = products.find(p => p.id_producto == id);
+    if (!product) return;
+    
+    document.getElementById('edit-prod-id').value = product.id_producto;
+    document.getElementById('edit-prod-codigo').value = product.codigo_barras;
+    document.getElementById('edit-prod-nombre').value = product.nombre;
+    document.getElementById('edit-prod-categoria').value = product.id_categoria;
+    document.getElementById('edit-prod-precio').value = product.precio;
+    document.getElementById('edit-prod-stock').value = product.stock;
+    
+    modalEditProduct.classList.add('active');
+}
+
+document.getElementById('form-edit-product').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const payload = {
+        id_producto: document.getElementById('edit-prod-id').value,
+        codigo_barras: document.getElementById('edit-prod-codigo').value,
+        nombre: document.getElementById('edit-prod-nombre').value,
+        id_categoria: document.getElementById('edit-prod-categoria').value,
+        precio: document.getElementById('edit-prod-precio').value,
+        stock: document.getElementById('edit-prod-stock').value
+    };
+
+    const res = await fetch(API_URL + 'edit_producto', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if(data.success) {
+        modalEditProduct.classList.remove('active');
         e.target.reset();
         loadInventory();
     } else {

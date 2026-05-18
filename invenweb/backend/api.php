@@ -51,6 +51,17 @@ switch ($action) {
         }
         break;
 
+    case 'edit_producto':
+        $data = json_decode(file_get_contents('php://input'), true);
+        $stmt = $pdo->prepare("UPDATE productos SET id_categoria=?, codigo_barras=?, nombre=?, precio=?, stock=? WHERE id_producto=?");
+        try {
+            $stmt->execute([$data['id_categoria'], $data['codigo_barras'], $data['nombre'], $data['precio'], $data['stock'], $data['id_producto']]);
+            echo json_encode(['success' => true, 'message' => 'Producto actualizado']);
+        } catch(Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        break;
+
     case 'get_categorias':
         $stmt = $pdo->query("SELECT * FROM categorias");
         echo json_encode(['success' => true, 'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
