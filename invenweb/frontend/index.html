@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InvenWeb - Control de Inventario y Ventas</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Login View -->
+        <div id="view-login" class="view active">
+            <div class="login-container glassmorphism">
+                <div class="logo">
+                    <i class="ri-tools-fill"></i>
+                    <h2>InvenWeb</h2>
+                </div>
+                <p class="subtitle">Ferretería ConstruMax</p>
+                <form id="form-login">
+                    <div class="input-group">
+                        <i class="ri-mail-line"></i>
+                        <input type="email" id="login-email" placeholder="Correo electrónico" required value="admin@invenweb.com">
+                    </div>
+                    <div class="input-group">
+                        <i class="ri-lock-line"></i>
+                        <input type="password" id="login-password" placeholder="Contraseña" required value="admin123">
+                    </div>
+                    <button type="submit" class="btn-primary">Ingresar</button>
+                    <p id="login-error" class="error-msg"></p>
+                </form>
+            </div>
+        </div>
+
+        <!-- Main App Layout -->
+        <div id="view-main" class="view">
+            <aside class="sidebar">
+                <div class="logo">
+                    <i class="ri-tools-fill"></i>
+                    <h2>InvenWeb</h2>
+                </div>
+                <nav>
+                    <a href="#" class="nav-item active" data-target="dashboard"><i class="ri-dashboard-line"></i> Inventario</a>
+                    <a href="#" class="nav-item" data-target="pos"><i class="ri-shopping-cart-line"></i> Punto de Venta</a>
+                </nav>
+                <div class="user-info">
+                    <i class="ri-user-smile-line"></i>
+                    <span id="user-name">Usuario</span>
+                    <button id="btn-logout" class="btn-icon"><i class="ri-logout-box-r-line"></i></button>
+                </div>
+            </aside>
+            <main class="content">
+                <!-- Dashboard (Inventory) -->
+                <div id="section-dashboard" class="section active">
+                    <header class="section-header">
+                        <h2>Inventario de Productos</h2>
+                        <button id="btn-new-product" class="btn-primary"><i class="ri-add-line"></i> Nuevo Producto</button>
+                    </header>
+                    <div class="stats-cards">
+                        <div class="card glassmorphism">
+                            <i class="ri-box-3-line"></i>
+                            <div>
+                                <h3>Total Productos</h3>
+                                <p id="stat-total-products">0</p>
+                            </div>
+                        </div>
+                        <div class="card glassmorphism">
+                            <i class="ri-alert-line"></i>
+                            <div>
+                                <h3>Stock Bajo</h3>
+                                <p id="stat-low-stock">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-container glassmorphism">
+                        <table id="table-products">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Nombre</th>
+                                    <th>Categoría</th>
+                                    <th>Precio</th>
+                                    <th>Stock</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- POS System -->
+                <div id="section-pos" class="section">
+                    <header class="section-header">
+                        <h2>Punto de Venta</h2>
+                    </header>
+                    <div class="pos-layout">
+                        <div class="pos-products glassmorphism">
+                            <div class="search-bar">
+                                <i class="ri-search-line"></i>
+                                <input type="text" id="pos-search" placeholder="Buscar por nombre o código de barras...">
+                            </div>
+                            <div class="product-grid" id="pos-product-grid">
+                                <!-- Dynamic Product Cards -->
+                            </div>
+                        </div>
+                        <div class="pos-cart glassmorphism">
+                            <h3>Ticket de Compra</h3>
+                            <div class="cart-items" id="cart-items">
+                                <!-- Dynamic Cart Items -->
+                            </div>
+                            <div class="cart-summary">
+                                <div class="summary-row">
+                                    <span>Subtotal</span>
+                                    <span id="cart-subtotal">$0.00</span>
+                                </div>
+                                <div class="summary-row total">
+                                    <span>Total</span>
+                                    <span id="cart-total">$0.00</span>
+                                </div>
+                                <button id="btn-checkout" class="btn-primary btn-large">Cobrar <i class="ri-bank-card-line"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-product" class="modal">
+        <div class="modal-content glassmorphism">
+            <span class="close-btn">&times;</span>
+            <h2>Agregar Producto</h2>
+            <form id="form-product">
+                <div class="input-group">
+                    <label>Código de Barras</label>
+                    <input type="text" id="prod-codigo" required>
+                </div>
+                <div class="input-group">
+                    <label>Nombre del Producto</label>
+                    <input type="text" id="prod-nombre" required>
+                </div>
+                <div class="input-group">
+                    <label>Categoría</label>
+                    <select id="prod-categoria" required>
+                        <!-- Dynamic Options -->
+                    </select>
+                </div>
+                <div class="row">
+                    <div class="input-group">
+                        <label>Precio ($)</label>
+                        <input type="number" step="0.01" id="prod-precio" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Stock Inicial</label>
+                        <input type="number" id="prod-stock" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Guardar Producto</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+Universidad Gerardo Barrios
+Facultad de Ciencia y Tecnología
+Asignatura: Programación Computacional IV
+Docente: Ing. William Alexis Montes Girón
+Proyecto: "Sistema Web de Control de Inventario y Ventas (InvenWeb)"
+Integrantes:
+Alberto Jose Velasquez Paz (Código: ________)
+Ricardo Alberto Mendiola Hernández (Código: ________)
+Luis Angel Zúniga Menjivar (Código: ________)
+Victor Arnoldo Iglesias Sandoval (Código: ________)
+Shelsy Rubi Melendez Rodríguez (Código: ________)
+Fecha: 10 de mayo de 2026
+ÍNDICE
+Introducción
+Objetivos
+2.1 Objetivo General
+2.2 Objetivos Específicos
+Justificación Tecnológica
+Diseño de Base de Datos
+4.1 Diagrama de la Base de Datos
+4.2 Diccionario de Datos
+Prototipado de Interfaz (UI)
+1. Introducción
+Situación Problemática:
+La empresa ficticia "Ferretería ConstruMax" se dedica a la venta de materiales de construcción y herramientas. Actualmente, llevan el control de su inventario y registro de ventas de manera manual mediante hojas de cálculo y cuadernos. Esto ha generado una serie de problemas críticos: pérdida de información, inconsistencias en el stock real versus el registrado (llevando a desabastecimiento de productos clave), y un proceso de facturación lento que genera inconformidad en los clientes. Además, la gerencia no cuenta con reportes actualizados para la toma de decisiones.
+Delimitación del Proyecto (Alcance):
+El proyecto "InvenWeb" consistirá en el desarrollo de una aplicación web enfocada en dos módulos principales:
+Módulo de Inventario: Gestión (CRUD) de categorías y productos, control de existencias y alertas de stock mínimo.
+Módulo de Ventas: Interfaz de Punto de Venta (POS) para procesar las compras de los clientes de forma rápida, reduciendo automáticamente el stock del inventario y generando un comprobante digital.
+El sistema contará con autenticación de usuarios para separar los roles de "Administrador" y "Cajero".
+2. Objetivos
+2.1 Objetivo General
+Desarrollar una aplicación web para el control de inventario y ventas que optimice los procesos operativos y la gestión de la información en la Ferretería ConstruMax.
+2.2 Objetivos Específicos
+Implementar una base de datos relacional segura que permita el registro, actualización y consulta de productos y transacciones en tiempo real.
+Diseñar una interfaz de usuario (UI) intuitiva y responsiva que facilite a los empleados la navegación en el punto de venta y la administración del inventario, reduciendo el tiempo de atención al cliente.
+3. Justificación Tecnológica
+El desarrollo de "InvenWeb" solucionará el problema de la ferretería al centralizar toda la información en un servidor, permitiendo el acceso concurrente de los cajeros y automatizando las matemáticas del negocio (reducción de stock, cálculo de totales). Esto elimina el error humano de los registros manuales.
+Para el desarrollo, se ha seleccionado la siguiente pila tecnológica, basándonos en criterios de rendimiento, seguridad y agilidad de desarrollo:
+Cuadro Comparativo de Herramientas y Frameworks
+Criterio
+Laravel (PHP) - Elegido
+Django (Python)
+Express (Node.js)
+Curva de Aprendizaje
+Moderada. Excelente documentación.
+Moderada. Requiere dominio estricto de Python.
+Alta. Requiere configurar la arquitectura desde cero.
+ORM y Base de Datos
+Eloquent ORM (Muy potente e intuitivo).
+ORM integrado muy robusto.
+Requiere librerías de terceros.
+Seguridad Integrada
+Protección CSRF, XSS y SQL Injection nativa.
+Altamente seguro por defecto.
+Requiere configuración manual de middlewares.
+Justificación
+Elegido por su arquitectura MVC clara y el ecosistema robusto que acelera el desarrollo.
+El equipo tiene mayor fluidez con la sintaxis de PHP para aplicaciones web clásicas.
+Descartado por requerir demasiado tiempo en la configuración inicial de la arquitectura.
+Criterio
+MySQL - Elegido
+PostgreSQL
+SQLite
+Tipo
+Relacional (RDBMS)
+Relacional (RDBMS) Avanzado
+Relacional (Basado en archivos)
+Rendimiento
+Excelente en lecturas rápidas y aplicaciones web estándar.
+Excelente para consultas analíticas complejas.
+Limitado en concurrencia.
+Justificación
+Elegido por su perfecta integración con Laravel y eficiencia transaccional en ventas.
+Excede las necesidades del alcance actual del proyecto.
+Descartado; no es adecuado para un entorno multi-usuario.
+4. Diseño de Base de Datos
+4.1 Diagrama de la Base de Datos
+(Instrucción: Pegar aquí la imagen del diagrama Entidad-Relación exportado desde MySQL Workbench)
+Las relaciones principales son:
+Un Usuario registra múltiples Ventas (1:N).
+Una Categoria tiene múltiples Productos (1:N).
+Una Venta contiene múltiples Detalle_Ventas (1:N).
+Un Producto puede estar en múltiples Detalle_Ventas (1:N).
+4.2 Diccionario de Datos
+Tabla: usuarios (Almacena los empleados)
+Campo
+Tipo de Dato
+Restricciones
+Descripción
+id_usuario
+INT
+PK, Auto Increment
+Identificador único del usuario.
+nombre
+VARCHAR(100)
+NOT NULL
+Nombre completo del empleado.
+email
+VARCHAR(100)
+NOT NULL, UNIQUE
+Correo para inicio de sesión.
+password
+VARCHAR(255)
+NOT NULL
+Contraseña encriptada.
+rol
+ENUM
+('Admin', 'Cajero')
+Define los permisos en el sistema.
+Tabla: categorias (Clasificación de productos)
+Campo
+Tipo de Dato
+Restricciones
+Descripción
+id_categoria
+INT
+PK, Auto Increment
+Identificador de la categoría.
+nombre
+VARCHAR(50)
+NOT NULL
+Ej: Herramientas, Fontanería.
+descripcion
+TEXT
+NULL
+Detalle de los productos.
+Tabla: productos (Catálogo y control de stock)
+Campo
+Tipo de Dato
+Restricciones
+Descripción
+id_producto
+INT
+PK, Auto Increment
+Identificador del producto.
+id_categoria
+INT
+FK
+Relación con tabla categorias.
+codigo_barras
+VARCHAR(50)
+UNIQUE
+Código para el escáner del POS.
+nombre
+VARCHAR(150)
+NOT NULL
+Nombre y marca del producto.
+precio
+DECIMAL(10,2)
+NOT NULL, > 0
+Precio de venta al público.
+stock
+INT
+NOT NULL, >= 0
+Cantidad actual disponible.
+Tabla: ventas (Encabezado de la factura)
+Campo
+Tipo de Dato
+Restricciones
+Descripción
+id_venta
+INT
+PK, Auto Increment
+Número correlativo de la venta.
+id_usuario
+INT
+FK
+Empleado que realizó la venta.
+fecha_hora
+DATETIME
+DEFAULT NOW()
+Fecha y hora de transacción.
+total
+DECIMAL(10,2)
+NOT NULL
+Monto total a pagar.
+Tabla: detalle_ventas (Líneas de productos en una venta)
+Campo
+Tipo de Dato
+Restricciones
+Descripción
+id_detalle
+INT
+PK, Auto Increment
+Identificador del detalle.
+id_venta
+INT
+FK
+Relación con encabezado de venta.
+id_producto
+INT
+FK
+Producto vendido.
+cantidad
+INT
+NOT NULL, > 0
+Unidades vendidas.
+precio_unitario
+DECIMAL(10,2)
+NOT NULL
+Precio al momento de la venta.
+5. Prototipado de Interfaz (UI)
+(Instrucción: Pegar aquí las capturas de pantalla de Figma, Canva o Balsamiq)
+Vista 1: Pantalla de Login (Autenticación)
+Funcionalidad: Controla el acceso al sistema. Pide correo electrónico y contraseña.
+Diseño visual: Estilo minimalista. Logotipo centrado, con un formulario de fondo blanco sobre un fondo corporativo azul marino. Uso de sombras suaves para dar profundidad.
+[Pegar Imagen 1 Aquí]
+Vista 2: Dashboard y Listado de Productos
+Funcionalidad: Muestra un resumen en tarjetas (Total de productos, Ventas del día). Incluye tabla interactiva para buscar productos y gestionar el inventario.
+Diseño visual: Pantalla dividida (Sidebar lateral izquierdo, contenido a la derecha). Botones de "Agregar" en colores de llamada a la acción.
+[Pegar Imagen 2 Aquí]
+Vista 3: Interfaz de Punto de Venta (POS)
+Funcionalidad: Permite escanear o buscar productos, agregarlos al carrito virtual, calcular el total y procesar el pago.
+Diseño visual: Dividida en dos columnas. Izquierda: Buscador y listado visual. Derecha: Ticket de compra en tiempo real con botón destacado de "Cobrar".
+[Pegar Imagen 3 Aquí]
