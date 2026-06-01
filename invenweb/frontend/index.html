@@ -3,12 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="InvenWeb - Sistema Web de Control de Inventario y Ventas para Ferretería ConstruMax">
     <title>InvenWeb - Control de Inventario y Ventas</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 </head>
 <body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Confirm Dialog -->
+    <div class="confirm-dialog" id="confirm-dialog">
+        <div class="confirm-dialog-content glassmorphism">
+            <i class="ri-error-warning-line confirm-icon"></i>
+            <h3 id="confirm-title">¿Estás seguro?</h3>
+            <p id="confirm-message">Esta acción no se puede deshacer.</p>
+            <div class="confirm-dialog-actions">
+                <button class="btn-secondary" id="confirm-cancel">Cancelar</button>
+                <button class="btn-danger" id="confirm-accept">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
     <div id="app">
         <!-- Login View -->
         <div id="view-login" class="view active">
@@ -18,16 +35,18 @@
                     <h2>InvenWeb</h2>
                 </div>
                 <p class="subtitle">Ferretería ConstruMax</p>
-                <form id="form-login">
+                <form id="form-login" novalidate>
                     <div class="input-group">
                         <i class="ri-mail-line"></i>
-                        <input type="email" id="login-email" placeholder="Correo electrónico" required value="admin@invenweb.com">
+                        <input type="email" id="login-email" placeholder="Correo electrónico" value="admin@invenweb.com">
+                        <span class="field-error-msg" id="error-login-email"></span>
                     </div>
                     <div class="input-group">
                         <i class="ri-lock-line"></i>
-                        <input type="password" id="login-password" placeholder="Contraseña" required value="admin123">
+                        <input type="password" id="login-password" placeholder="Contraseña" value="admin123">
+                        <span class="field-error-msg" id="error-login-password"></span>
                     </div>
-                    <button type="submit" class="btn-primary">Ingresar</button>
+                    <button type="submit" class="btn-primary" style="width:100%;">Ingresar <i class="ri-login-box-line"></i></button>
                     <p id="login-error" class="error-msg"></p>
                 </form>
             </div>
@@ -41,20 +60,23 @@
                     <h2>InvenWeb</h2>
                 </div>
                 <nav>
-                    <a href="#" class="nav-item active" data-target="dashboard"><i class="ri-dashboard-line"></i> Inventario</a>
-                    <a href="#" class="nav-item" data-target="pos"><i class="ri-shopping-cart-line"></i> Punto de Venta</a>
+                    <a href="#" class="nav-item active" data-target="dashboard"><i class="ri-box-3-line"></i> <span>Inventario</span></a>
+                    <a href="#" class="nav-item" data-target="categorias"><i class="ri-folder-line"></i> <span>Categorías</span></a>
+                    <a href="#" class="nav-item" data-target="pos"><i class="ri-shopping-cart-line"></i> <span>Punto de Venta</span></a>
+                    <a href="#" class="nav-item" data-target="ventas"><i class="ri-file-list-3-line"></i> <span>Historial</span></a>
                 </nav>
                 <div class="user-info">
                     <i class="ri-user-smile-line"></i>
                     <span id="user-name">Usuario</span>
-                    <button id="btn-logout" class="btn-icon"><i class="ri-logout-box-r-line"></i></button>
+                    <button id="btn-logout" class="btn-icon" title="Cerrar sesión"><i class="ri-logout-box-r-line"></i></button>
                 </div>
             </aside>
             <main class="content">
-                <!-- Dashboard (Inventory) -->
+
+                <!-- ====== INVENTARIO ====== -->
                 <div id="section-dashboard" class="section active">
                     <header class="section-header">
-                        <h2>Inventario de Productos</h2>
+                        <h1>Inventario de Productos</h1>
                         <button id="btn-new-product" class="btn-primary"><i class="ri-add-line"></i> Nuevo Producto</button>
                     </header>
                     <div class="stats-cards">
@@ -66,10 +88,17 @@
                             </div>
                         </div>
                         <div class="card glassmorphism">
-                            <i class="ri-alert-line"></i>
+                            <i class="ri-alert-line icon-warning"></i>
                             <div>
-                                <h3>Stock Bajo</h3>
+                                <h3>Stock Bajo (&lt;10)</h3>
                                 <p id="stat-low-stock">0</p>
+                            </div>
+                        </div>
+                        <div class="card glassmorphism">
+                            <i class="ri-folder-line icon-primary"></i>
+                            <div>
+                                <h3>Categorías</h3>
+                                <p id="stat-total-categorias">0</p>
                             </div>
                         </div>
                     </div>
@@ -92,10 +121,34 @@
                     </div>
                 </div>
 
-                <!-- POS System -->
+                <!-- ====== CATEGORIAS ====== -->
+                <div id="section-categorias" class="section">
+                    <header class="section-header">
+                        <h1>Gestión de Categorías</h1>
+                        <button id="btn-new-categoria" class="btn-primary"><i class="ri-add-line"></i> Nueva Categoría</button>
+                    </header>
+                    <div class="table-container glassmorphism">
+                        <table id="table-categorias">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th>Productos</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ====== PUNTO DE VENTA ====== -->
                 <div id="section-pos" class="section">
                     <header class="section-header">
-                        <h2>Punto de Venta</h2>
+                        <h1>Punto de Venta</h1>
                     </header>
                     <div class="pos-layout">
                         <div class="pos-products glassmorphism">
@@ -108,9 +161,12 @@
                             </div>
                         </div>
                         <div class="pos-cart glassmorphism">
-                            <h3>Ticket de Compra</h3>
+                            <h3><i class="ri-receipt-line"></i> Ticket de Compra</h3>
                             <div class="cart-items" id="cart-items">
-                                <!-- Dynamic Cart Items -->
+                                <div class="cart-empty">
+                                    <i class="ri-shopping-basket-line"></i>
+                                    Agrega productos al carrito
+                                </div>
                             </div>
                             <div class="cart-summary">
                                 <div class="summary-row">
@@ -126,41 +182,72 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- ====== HISTORIAL DE VENTAS ====== -->
+                <div id="section-ventas" class="section">
+                    <header class="section-header">
+                        <h1>Historial de Ventas</h1>
+                    </header>
+                    <div class="table-container glassmorphism">
+                        <table id="table-ventas">
+                            <thead>
+                                <tr>
+                                    <th>Nº Venta</th>
+                                    <th>Fecha y Hora</th>
+                                    <th>Cajero</th>
+                                    <th>Total</th>
+                                    <th>Detalle</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </main>
         </div>
     </div>
 
-    <!-- Modals -->
+    <!-- ====== MODALES ====== -->
+
+    <!-- Add Product Modal -->
     <div id="modal-product" class="modal">
         <div class="modal-content glassmorphism">
-            <span class="close-btn">&times;</span>
-            <h2>Agregar Producto</h2>
-            <form id="form-product">
+            <span class="close-btn" data-close="modal-product">&times;</span>
+            <h2><i class="ri-add-circle-line"></i> Agregar Producto</h2>
+            <form id="form-product" novalidate>
                 <div class="input-group">
-                    <label>Código de Barras</label>
-                    <input type="text" id="prod-codigo" required>
+                    <label for="prod-codigo">Código de Barras *</label>
+                    <input type="text" id="prod-codigo" placeholder="Ej: 7701234567890">
+                    <span class="field-error-msg" id="error-prod-codigo"></span>
                 </div>
                 <div class="input-group">
-                    <label>Nombre del Producto</label>
-                    <input type="text" id="prod-nombre" required>
+                    <label for="prod-nombre">Nombre del Producto *</label>
+                    <input type="text" id="prod-nombre" placeholder="Ej: Martillo Truper 16oz">
+                    <span class="field-error-msg" id="error-prod-nombre"></span>
                 </div>
                 <div class="input-group">
-                    <label>Categoría</label>
-                    <select id="prod-categoria" required>
+                    <label for="prod-categoria">Categoría *</label>
+                    <select id="prod-categoria">
                         <!-- Dynamic Options -->
                     </select>
+                    <span class="field-error-msg" id="error-prod-categoria"></span>
                 </div>
                 <div class="row">
                     <div class="input-group">
-                        <label>Precio ($)</label>
-                        <input type="number" step="0.01" id="prod-precio" required>
+                        <label for="prod-precio">Precio ($) *</label>
+                        <input type="number" step="0.01" min="0.01" id="prod-precio" placeholder="0.00">
+                        <span class="field-error-msg" id="error-prod-precio"></span>
                     </div>
                     <div class="input-group">
-                        <label>Stock Inicial</label>
-                        <input type="number" id="prod-stock" required>
+                        <label for="prod-stock">Stock Inicial *</label>
+                        <input type="number" min="0" id="prod-stock" placeholder="0">
+                        <span class="field-error-msg" id="error-prod-stock"></span>
                     </div>
                 </div>
-                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Guardar Producto</button>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Guardar Producto <i class="ri-save-line"></i></button>
             </form>
         </div>
     </div>
@@ -168,35 +255,81 @@
     <!-- Edit Product Modal -->
     <div id="modal-edit-product" class="modal">
         <div class="modal-content glassmorphism">
-            <span class="close-btn edit-close-btn">&times;</span>
-            <h2>Editar Producto</h2>
-            <form id="form-edit-product">
+            <span class="close-btn" data-close="modal-edit-product">&times;</span>
+            <h2><i class="ri-edit-line"></i> Editar Producto</h2>
+            <form id="form-edit-product" novalidate>
                 <input type="hidden" id="edit-prod-id">
                 <div class="input-group">
-                    <label>Código de Barras</label>
-                    <input type="text" id="edit-prod-codigo" required>
+                    <label for="edit-prod-codigo">Código de Barras *</label>
+                    <input type="text" id="edit-prod-codigo">
+                    <span class="field-error-msg" id="error-edit-prod-codigo"></span>
                 </div>
                 <div class="input-group">
-                    <label>Nombre del Producto</label>
-                    <input type="text" id="edit-prod-nombre" required>
+                    <label for="edit-prod-nombre">Nombre del Producto *</label>
+                    <input type="text" id="edit-prod-nombre">
+                    <span class="field-error-msg" id="error-edit-prod-nombre"></span>
                 </div>
                 <div class="input-group">
-                    <label>Categoría</label>
-                    <select id="edit-prod-categoria" required>
+                    <label for="edit-prod-categoria">Categoría *</label>
+                    <select id="edit-prod-categoria">
                         <!-- Dynamic Options -->
                     </select>
+                    <span class="field-error-msg" id="error-edit-prod-categoria"></span>
                 </div>
                 <div class="row">
                     <div class="input-group">
-                        <label>Precio ($)</label>
-                        <input type="number" step="0.01" id="edit-prod-precio" required>
+                        <label for="edit-prod-precio">Precio ($) *</label>
+                        <input type="number" step="0.01" min="0.01" id="edit-prod-precio">
+                        <span class="field-error-msg" id="error-edit-prod-precio"></span>
                     </div>
                     <div class="input-group">
-                        <label>Stock</label>
-                        <input type="number" id="edit-prod-stock" required>
+                        <label for="edit-prod-stock">Stock *</label>
+                        <input type="number" min="0" id="edit-prod-stock">
+                        <span class="field-error-msg" id="error-edit-prod-stock"></span>
                     </div>
                 </div>
-                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Actualizar Producto</button>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Actualizar Producto <i class="ri-refresh-line"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Categoria Modal -->
+    <div id="modal-categoria" class="modal">
+        <div class="modal-content glassmorphism">
+            <span class="close-btn" data-close="modal-categoria">&times;</span>
+            <h2><i class="ri-add-circle-line"></i> Agregar Categoría</h2>
+            <form id="form-categoria" novalidate>
+                <div class="input-group">
+                    <label for="cat-nombre">Nombre de la Categoría *</label>
+                    <input type="text" id="cat-nombre" placeholder="Ej: Herramientas Eléctricas">
+                    <span class="field-error-msg" id="error-cat-nombre"></span>
+                </div>
+                <div class="input-group">
+                    <label for="cat-descripcion">Descripción</label>
+                    <textarea id="cat-descripcion" placeholder="Descripción opcional de la categoría..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Guardar Categoría <i class="ri-save-line"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Categoria Modal -->
+    <div id="modal-edit-categoria" class="modal">
+        <div class="modal-content glassmorphism">
+            <span class="close-btn" data-close="modal-edit-categoria">&times;</span>
+            <h2><i class="ri-edit-line"></i> Editar Categoría</h2>
+            <form id="form-edit-categoria" novalidate>
+                <input type="hidden" id="edit-cat-id">
+                <div class="input-group">
+                    <label for="edit-cat-nombre">Nombre de la Categoría *</label>
+                    <input type="text" id="edit-cat-nombre">
+                    <span class="field-error-msg" id="error-edit-cat-nombre"></span>
+                </div>
+                <div class="input-group">
+                    <label for="edit-cat-descripcion">Descripción</label>
+                    <textarea id="edit-cat-descripcion"></textarea>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Actualizar Categoría <i class="ri-refresh-line"></i></button>
             </form>
         </div>
     </div>
