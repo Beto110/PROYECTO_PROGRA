@@ -27,6 +27,7 @@ try {
             nombre VARCHAR(150) NOT NULL,
             precio DECIMAL(10,2) NOT NULL CHECK(precio > 0),
             stock INTEGER NOT NULL CHECK(stock >= 0),
+            imagen VARCHAR(255) DEFAULT NULL,
             FOREIGN KEY(id_categoria) REFERENCES categorias(id_categoria)
         );
 
@@ -47,7 +48,23 @@ try {
             FOREIGN KEY(id_venta) REFERENCES ventas(id_venta),
             FOREIGN KEY(id_producto) REFERENCES productos(id_producto)
         );
+
+        CREATE TABLE IF NOT EXISTS log_acciones (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id_usuario INTEGER,
+            accion VARCHAR(50) NOT NULL,
+            detalle TEXT,
+            fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(id_usuario) REFERENCES usuarios(id_usuario)
+        );
     ");
+
+    // Migration: add imagen column if it doesn't exist
+    $cols = $pdo->query("PRAGMA table_info(productos)")->fetchAll(PDO::FETCH_ASSOC);
+    $colNames = array_column($cols, 'name');
+    if (!in_array('imagen', $colNames)) {
+        $pdo->exec("ALTER TABLE productos ADD COLUMN imagen VARCHAR(255) DEFAULT NULL");
+    }
 
     // Insert admin user
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM usuarios");
@@ -57,6 +74,12 @@ try {
         $pdo->exec("INSERT INTO usuarios (nombre, email, password, rol) VALUES ('Administrador', 'admin@invenweb.com', '$password', 'Admin')");
         $pdo->exec("INSERT INTO categorias (nombre, descripcion) VALUES ('Herramientas', 'Herramientas manuales y eléctricas')");
         $pdo->exec("INSERT INTO productos (id_categoria, codigo_barras, nombre, precio, stock) VALUES (1, '7701234567890', 'Martillo Truper', 15.50, 100)");
+    }
+
+    // Create uploads directory
+    $uploadsDir = __DIR__ . '/uploads/productos';
+    if (!is_dir($uploadsDir)) {
+        mkdir($uploadsDir, 0755, true);
     }
 
     echo "Base de datos inicializada correctamente.";

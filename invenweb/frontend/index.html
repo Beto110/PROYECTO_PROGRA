@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <!-- Toast Container -->
@@ -54,13 +55,17 @@
 
         <!-- Main App Layout -->
         <div id="view-main" class="view">
-            <aside class="sidebar">
+            <aside class="sidebar" id="sidebar">
                 <div class="logo">
                     <i class="ri-tools-fill"></i>
                     <h2>InvenWeb</h2>
                 </div>
+                <button id="btn-toggle-sidebar" class="sidebar-toggle" title="Colapsar menú">
+                    <i class="ri-menu-fold-line"></i>
+                </button>
                 <nav>
-                    <a href="#" class="nav-item active" data-target="dashboard"><i class="ri-box-3-line"></i> <span>Inventario</span></a>
+                    <a href="#" class="nav-item active" data-target="dashboard"><i class="ri-dashboard-3-line"></i> <span>Dashboard</span></a>
+                    <a href="#" class="nav-item" data-target="inventario"><i class="ri-box-3-line"></i> <span>Inventario</span></a>
                     <a href="#" class="nav-item" data-target="categorias"><i class="ri-folder-line"></i> <span>Categorías</span></a>
                     <a href="#" class="nav-item" data-target="pos"><i class="ri-shopping-cart-line"></i> <span>Punto de Venta</span></a>
                     <a href="#" class="nav-item" data-target="ventas"><i class="ri-file-list-3-line"></i> <span>Historial</span></a>
@@ -73,13 +78,90 @@
             </aside>
             <main class="content">
 
-                <!-- ====== INVENTARIO ====== -->
+                <!-- ====== DASHBOARD ====== -->
                 <div id="section-dashboard" class="section active">
                     <header class="section-header">
-                        <h1>Inventario de Productos</h1>
-                        <button id="btn-new-product" class="btn-primary"><i class="ri-add-line"></i> Nuevo Producto</button>
+                        <h1><i class="ri-dashboard-3-line"></i> Dashboard</h1>
                     </header>
                     <div class="stats-cards">
+                        <div class="card glassmorphism stat-card-green">
+                            <i class="ri-money-dollar-circle-line"></i>
+                            <div>
+                                <h3>Ventas Hoy</h3>
+                                <p id="stat-ventas-hoy" class="count-up" data-value="0">$0.00</p>
+                                <small id="stat-ventas-hoy-count">0 transacciones</small>
+                            </div>
+                        </div>
+                        <div class="card glassmorphism stat-card-blue">
+                            <i class="ri-calendar-check-line"></i>
+                            <div>
+                                <h3>Ventas Semana</h3>
+                                <p id="stat-ventas-semana" class="count-up" data-value="0">$0.00</p>
+                                <small id="stat-ventas-semana-count">0 transacciones</small>
+                            </div>
+                        </div>
+                        <div class="card glassmorphism stat-card-purple">
+                            <i class="ri-archive-line"></i>
+                            <div>
+                                <h3>Valor Inventario</h3>
+                                <p id="stat-valor-inventario" class="count-up" data-value="0">$0.00</p>
+                                <small id="stat-productos-total">0 productos</small>
+                            </div>
+                        </div>
+                        <div class="card glassmorphism stat-card-red">
+                            <i class="ri-error-warning-line"></i>
+                            <div>
+                                <h3>Alertas Stock</h3>
+                                <p id="stat-alertas-stock" class="count-up" data-value="0">0</p>
+                                <small id="stat-agotados">0 agotados</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="charts-grid">
+                        <div class="chart-container glassmorphism">
+                            <h3><i class="ri-line-chart-line"></i> Ventas Últimos 7 Días</h3>
+                            <canvas id="chart-ventas-7dias"></canvas>
+                        </div>
+                        <div class="chart-container glassmorphism">
+                            <h3><i class="ri-pie-chart-line"></i> Productos por Categoría</h3>
+                            <canvas id="chart-categorias"></canvas>
+                        </div>
+                    </div>
+                    <div class="charts-grid single">
+                        <div class="chart-container glassmorphism">
+                            <h3><i class="ri-bar-chart-horizontal-line"></i> Top 5 Productos Más Vendidos</h3>
+                            <canvas id="chart-top-productos"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== INVENTARIO ====== -->
+                <div id="section-inventario" class="section">
+                    <header class="section-header">
+                        <h1><i class="ri-box-3-line"></i> Inventario de Productos</h1>
+                        <div class="header-actions">
+                            <button id="btn-export-csv" class="btn-secondary" title="Exportar a CSV"><i class="ri-download-2-line"></i> <span>Exportar CSV</span></button>
+                            <button id="btn-new-product" class="btn-primary"><i class="ri-add-line"></i> Nuevo Producto</button>
+                        </div>
+                    </header>
+                    <!-- Filters bar -->
+                    <div class="filters-bar glassmorphism">
+                        <div class="filter-search">
+                            <i class="ri-search-line"></i>
+                            <input type="text" id="inv-search" placeholder="Buscar por nombre o código...">
+                        </div>
+                        <select id="filter-categoria">
+                            <option value="">Todas las categorías</option>
+                        </select>
+                        <select id="filter-stock">
+                            <option value="">Todo el stock</option>
+                            <option value="normal">Stock Normal (≥10)</option>
+                            <option value="low">Stock Bajo (&lt;10)</option>
+                            <option value="out">Agotado (0)</option>
+                        </select>
+                        <span class="filter-results" id="filter-results"></span>
+                    </div>
+                    <div class="stats-cards mini">
                         <div class="card glassmorphism">
                             <i class="ri-box-3-line"></i>
                             <div>
@@ -106,6 +188,7 @@
                         <table id="table-products">
                             <thead>
                                 <tr>
+                                    <th>Imagen</th>
                                     <th>Código</th>
                                     <th>Nombre</th>
                                     <th>Categoría</th>
@@ -124,7 +207,7 @@
                 <!-- ====== CATEGORIAS ====== -->
                 <div id="section-categorias" class="section">
                     <header class="section-header">
-                        <h1>Gestión de Categorías</h1>
+                        <h1><i class="ri-folder-line"></i> Gestión de Categorías</h1>
                         <button id="btn-new-categoria" class="btn-primary"><i class="ri-add-line"></i> Nueva Categoría</button>
                     </header>
                     <div class="table-container glassmorphism">
@@ -148,7 +231,7 @@
                 <!-- ====== PUNTO DE VENTA ====== -->
                 <div id="section-pos" class="section">
                     <header class="section-header">
-                        <h1>Punto de Venta</h1>
+                        <h1><i class="ri-shopping-cart-line"></i> Punto de Venta</h1>
                     </header>
                     <div class="pos-layout">
                         <div class="pos-products glassmorphism">
@@ -186,7 +269,7 @@
                 <!-- ====== HISTORIAL DE VENTAS ====== -->
                 <div id="section-ventas" class="section">
                     <header class="section-header">
-                        <h1>Historial de Ventas</h1>
+                        <h1><i class="ri-file-list-3-line"></i> Historial de Ventas</h1>
                     </header>
                     <div class="table-container glassmorphism">
                         <table id="table-ventas">
@@ -217,19 +300,32 @@
         <div class="modal-content glassmorphism">
             <span class="close-btn" data-close="modal-product">&times;</span>
             <h2><i class="ri-add-circle-line"></i> Agregar Producto</h2>
-            <form id="form-product" novalidate>
+            <form id="form-product" novalidate enctype="multipart/form-data">
+                <div class="image-upload-wrapper">
+                    <label class="image-upload-area" id="prod-imagen-area">
+                        <input type="file" id="prod-imagen" accept="image/jpeg,image/png,image/webp" hidden>
+                        <div class="image-preview" id="prod-imagen-preview">
+                            <i class="ri-image-add-line"></i>
+                            <span>Clic o arrastra una imagen</span>
+                            <small>JPEG, PNG o WebP — máx. 2MB</small>
+                        </div>
+                    </label>
+                    <button type="button" class="btn-remove-image hidden" id="prod-remove-imagen" title="Quitar imagen">
+                        <i class="ri-close-circle-line"></i>
+                    </button>
+                </div>
                 <div class="input-group">
-                    <label for="prod-codigo">Código de Barras *</label>
+                    <label for="prod-codigo">Código de Barras <span class="required">*</span></label>
                     <input type="text" id="prod-codigo" placeholder="Ej: 7701234567890">
                     <span class="field-error-msg" id="error-prod-codigo"></span>
                 </div>
                 <div class="input-group">
-                    <label for="prod-nombre">Nombre del Producto *</label>
+                    <label for="prod-nombre">Nombre del Producto <span class="required">*</span></label>
                     <input type="text" id="prod-nombre" placeholder="Ej: Martillo Truper 16oz">
                     <span class="field-error-msg" id="error-prod-nombre"></span>
                 </div>
                 <div class="input-group">
-                    <label for="prod-categoria">Categoría *</label>
+                    <label for="prod-categoria">Categoría <span class="required">*</span></label>
                     <select id="prod-categoria">
                         <!-- Dynamic Options -->
                     </select>
@@ -237,17 +333,20 @@
                 </div>
                 <div class="row">
                     <div class="input-group">
-                        <label for="prod-precio">Precio ($) *</label>
+                        <label for="prod-precio">Precio ($) <span class="required">*</span></label>
                         <input type="number" step="0.01" min="0.01" id="prod-precio" placeholder="0.00">
                         <span class="field-error-msg" id="error-prod-precio"></span>
                     </div>
                     <div class="input-group">
-                        <label for="prod-stock">Stock Inicial *</label>
+                        <label for="prod-stock">Stock Inicial <span class="required">*</span></label>
                         <input type="number" min="0" id="prod-stock" placeholder="0">
                         <span class="field-error-msg" id="error-prod-stock"></span>
                     </div>
                 </div>
-                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Guardar Producto <i class="ri-save-line"></i></button>
+                <button type="submit" class="btn-primary btn-submit" style="width: 100%; margin-top: 1rem;">
+                    <span class="btn-text">Guardar Producto <i class="ri-save-line"></i></span>
+                    <span class="btn-loading hidden"><i class="ri-loader-4-line spin"></i> Guardando...</span>
+                </button>
             </form>
         </div>
     </div>
@@ -257,20 +356,34 @@
         <div class="modal-content glassmorphism">
             <span class="close-btn" data-close="modal-edit-product">&times;</span>
             <h2><i class="ri-edit-line"></i> Editar Producto</h2>
-            <form id="form-edit-product" novalidate>
+            <form id="form-edit-product" novalidate enctype="multipart/form-data">
                 <input type="hidden" id="edit-prod-id">
+                <input type="hidden" id="edit-prod-remove-img" value="0">
+                <div class="image-upload-wrapper">
+                    <label class="image-upload-area" id="edit-prod-imagen-area">
+                        <input type="file" id="edit-prod-imagen" accept="image/jpeg,image/png,image/webp" hidden>
+                        <div class="image-preview" id="edit-prod-imagen-preview">
+                            <i class="ri-image-add-line"></i>
+                            <span>Clic o arrastra una imagen</span>
+                            <small>JPEG, PNG o WebP — máx. 2MB</small>
+                        </div>
+                    </label>
+                    <button type="button" class="btn-remove-image hidden" id="edit-prod-remove-imagen" title="Quitar imagen">
+                        <i class="ri-close-circle-line"></i>
+                    </button>
+                </div>
                 <div class="input-group">
-                    <label for="edit-prod-codigo">Código de Barras *</label>
+                    <label for="edit-prod-codigo">Código de Barras <span class="required">*</span></label>
                     <input type="text" id="edit-prod-codigo">
                     <span class="field-error-msg" id="error-edit-prod-codigo"></span>
                 </div>
                 <div class="input-group">
-                    <label for="edit-prod-nombre">Nombre del Producto *</label>
+                    <label for="edit-prod-nombre">Nombre del Producto <span class="required">*</span></label>
                     <input type="text" id="edit-prod-nombre">
                     <span class="field-error-msg" id="error-edit-prod-nombre"></span>
                 </div>
                 <div class="input-group">
-                    <label for="edit-prod-categoria">Categoría *</label>
+                    <label for="edit-prod-categoria">Categoría <span class="required">*</span></label>
                     <select id="edit-prod-categoria">
                         <!-- Dynamic Options -->
                     </select>
@@ -278,17 +391,20 @@
                 </div>
                 <div class="row">
                     <div class="input-group">
-                        <label for="edit-prod-precio">Precio ($) *</label>
+                        <label for="edit-prod-precio">Precio ($) <span class="required">*</span></label>
                         <input type="number" step="0.01" min="0.01" id="edit-prod-precio">
                         <span class="field-error-msg" id="error-edit-prod-precio"></span>
                     </div>
                     <div class="input-group">
-                        <label for="edit-prod-stock">Stock *</label>
+                        <label for="edit-prod-stock">Stock <span class="required">*</span></label>
                         <input type="number" min="0" id="edit-prod-stock">
                         <span class="field-error-msg" id="error-edit-prod-stock"></span>
                     </div>
                 </div>
-                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Actualizar Producto <i class="ri-refresh-line"></i></button>
+                <button type="submit" class="btn-primary btn-submit" style="width: 100%; margin-top: 1rem;">
+                    <span class="btn-text">Actualizar Producto <i class="ri-refresh-line"></i></span>
+                    <span class="btn-loading hidden"><i class="ri-loader-4-line spin"></i> Actualizando...</span>
+                </button>
             </form>
         </div>
     </div>
@@ -300,7 +416,7 @@
             <h2><i class="ri-add-circle-line"></i> Agregar Categoría</h2>
             <form id="form-categoria" novalidate>
                 <div class="input-group">
-                    <label for="cat-nombre">Nombre de la Categoría *</label>
+                    <label for="cat-nombre">Nombre de la Categoría <span class="required">*</span></label>
                     <input type="text" id="cat-nombre" placeholder="Ej: Herramientas Eléctricas">
                     <span class="field-error-msg" id="error-cat-nombre"></span>
                 </div>
@@ -308,7 +424,10 @@
                     <label for="cat-descripcion">Descripción</label>
                     <textarea id="cat-descripcion" placeholder="Descripción opcional de la categoría..."></textarea>
                 </div>
-                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Guardar Categoría <i class="ri-save-line"></i></button>
+                <button type="submit" class="btn-primary btn-submit" style="width: 100%; margin-top: 1rem;">
+                    <span class="btn-text">Guardar Categoría <i class="ri-save-line"></i></span>
+                    <span class="btn-loading hidden"><i class="ri-loader-4-line spin"></i> Guardando...</span>
+                </button>
             </form>
         </div>
     </div>
@@ -321,7 +440,7 @@
             <form id="form-edit-categoria" novalidate>
                 <input type="hidden" id="edit-cat-id">
                 <div class="input-group">
-                    <label for="edit-cat-nombre">Nombre de la Categoría *</label>
+                    <label for="edit-cat-nombre">Nombre de la Categoría <span class="required">*</span></label>
                     <input type="text" id="edit-cat-nombre">
                     <span class="field-error-msg" id="error-edit-cat-nombre"></span>
                 </div>
@@ -329,8 +448,68 @@
                     <label for="edit-cat-descripcion">Descripción</label>
                     <textarea id="edit-cat-descripcion"></textarea>
                 </div>
-                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Actualizar Categoría <i class="ri-refresh-line"></i></button>
+                <button type="submit" class="btn-primary btn-submit" style="width: 100%; margin-top: 1rem;">
+                    <span class="btn-text">Actualizar Categoría <i class="ri-refresh-line"></i></span>
+                    <span class="btn-loading hidden"><i class="ri-loader-4-line spin"></i> Actualizando...</span>
+                </button>
             </form>
+        </div>
+    </div>
+
+    <!-- Sale Ticket Modal -->
+    <div id="modal-ticket" class="modal">
+        <div class="modal-content glassmorphism ticket-modal">
+            <span class="close-btn" data-close="modal-ticket">&times;</span>
+            <div class="ticket-receipt" id="ticket-receipt">
+                <div class="ticket-header">
+                    <div class="ticket-logo">
+                        <i class="ri-tools-fill"></i>
+                        <h2>Ferretería ConstruMax</h2>
+                    </div>
+                    <p class="ticket-subtitle">InvenWeb - Sistema de Inventario</p>
+                    <div class="ticket-divider">═══════════════════════════</div>
+                </div>
+                <div class="ticket-info">
+                    <p><strong>Nº Venta:</strong> <span id="ticket-num">#0000</span></p>
+                    <p><strong>Fecha:</strong> <span id="ticket-fecha">--</span></p>
+                    <p><strong>Cajero:</strong> <span id="ticket-cajero">--</span></p>
+                </div>
+                <div class="ticket-divider">───────────────────────────</div>
+                <table class="ticket-items">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cant.</th>
+                            <th>P.Unit</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticket-items-body">
+                    </tbody>
+                </table>
+                <div class="ticket-divider">───────────────────────────</div>
+                <div class="ticket-total">
+                    <span>TOTAL</span>
+                    <span id="ticket-total">$0.00</span>
+                </div>
+                <div class="ticket-divider">═══════════════════════════</div>
+                <div class="ticket-footer">
+                    <p>¡Gracias por su compra!</p>
+                    <p class="ticket-small">Conserve este ticket como comprobante</p>
+                </div>
+            </div>
+            <div class="ticket-actions">
+                <button class="btn-primary" id="btn-print-ticket"><i class="ri-printer-line"></i> Imprimir Ticket</button>
+                <button class="btn-secondary" data-close="modal-ticket"><i class="ri-close-line"></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-content">
+            <span class="lightbox-close" id="lightbox-close">&times;</span>
+            <img id="lightbox-img" src="" alt="Imagen del producto">
         </div>
     </div>
 
