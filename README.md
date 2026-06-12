@@ -10,4 +10,4 @@ roles de usuario.
 *   **Victor Arnoldo Iglesias Sandoval** 
 *   **Shelsy Rubi Melendez Rodríguez** 
 ##  Base de Datos
-El proyecto utiliza **MySQL** como Sistema Gestor de Base de Datos, lo que permite un despliegue rápido, ligero y embebido en el mismo servidor. El archivo de inicialización de la base de datos se encuentra dentro de la carpeta `backend/` (`init_db.php` que genera `database.sqlite`).
+El proyecto utiliza **SQLite** como Sistema Gestor de Base de Datos, lo que permite un despliegue rápido, ligero y embebido en el mismo servidor. El archivo de inicialización de la base de datos se encuentra dentro de la carpeta `backend/` (`init_db.php` que genera `database.sqlite`).
